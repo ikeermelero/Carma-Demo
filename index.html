@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carma — Gestión de Talleres</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            primary: '#E5383B',
+                            secondary: '#BA181B',
+                            accent: '#A4161A',
+                            darkest: '#660708',
+                            muted: '#B1A7A6',
+                            'dark-bg': '#0B090A',
+                            'dark-card': '#111518',
+                            'dark-border': 'rgba(255,255,255,0.06)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="bg-[#F7F8FA] dark:bg-brand-dark-bg text-gray-900 dark:text-gray-100 font-sans antialiased">
+
+<!-- ===================== AUTH ===================== -->
+<div id="auth-app" class="min-h-screen flex items-center justify-center p-6 bg-[#F7F8FA] dark:bg-brand-dark-bg">
+    <div class="w-full max-w-sm animate-fade-in">
+        <div class="text-center mb-8">
+            <div class="w-12 h-12 bg-brand-primary rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-brand-primary/30">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <h1 class="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">Taller <span class="text-brand-primary">Carma</span></h1>
+            <p class="text-xs text-gray-400 mt-1 font-medium">Plataforma de gestión profesional</p>
+        </div>
+        <div id="login-card" class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-white/5 shadow-xl shadow-black/5 p-8">
+            <h2 class="text-base font-bold text-gray-800 dark:text-white mb-6">Acceder al panel</h2>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Email</label>
+                    <input type="email" id="login-email" placeholder="admin@carma.com" class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm outline-none focus:border-brand-primary transition-all placeholder-gray-300 dark:placeholder-gray-600">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" class="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm outline-none focus:border-brand-primary transition-all placeholder-gray-300 dark:placeholder-gray-600">
+                </div>
+                <div class="pt-2">
+                    <button type="submit" class="w-full py-3.5 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-xl shadow-lg shadow-brand-primary/25 transition-all text-sm tracking-wide">Entrar al panel</button>
+                </div>
+            </form>
+            <p class="text-[10px] text-gray-300 dark:text-gray-600 text-center mt-5">Demo — accede con cualquier email y contraseña</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== MAIN APP ===================== -->
+<div id="main-dashboard-app" class="flex h-screen overflow-hidden hidden">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-60 bg-white dark:bg-brand-dark-card border-r border-gray-100 dark:border-brand-dark-border flex flex-col transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-300">
+        <!-- Logo -->
+        <div class="flex items-center gap-2.5 px-5 h-16 border-b border-gray-100 dark:border-white/5 shrink-0">
+            <div class="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <span class="font-extrabold text-gray-900 dark:text-white tracking-tight">Taller <span class="text-brand-primary">Carma</span></span>
+        </div>
+
+        <!-- Nav -->
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
+            <p class="px-3 text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 mt-1">Operativa</p>
+
+            <a href="#" id="nav-dashboard" class="nav-link active-nav flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-xl transition-all text-brand-primary bg-brand-primary/8">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.5" stroke-width="2"/></svg>
+                Dashboard
+            </a>
+            <a href="#" id="nav-repairs" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:bg-brand-primary/5">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                Reparaciones
+                <span class="ml-auto text-[10px] font-bold bg-brand-primary/10 text-brand-primary px-1.5 py-0.5 rounded-full">14</span>
+            </a>
+            <a href="#" id="nav-appointments" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:bg-brand-primary/5">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Citas
+            </a>
+            <a href="#" id="nav-mechanics" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:bg-brand-primary/5">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Mecánicos
+            </a>
+
+            <p class="px-3 text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 mt-5">Datos</p>
+
+            <a href="#" id="nav-vehicles" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:bg-brand-primary/5">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>
+                Vehículos
+            </a>
+            <a href="#" id="nav-clients" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:bg-brand-primary/5">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Clientes
+            </a>
+            <a href="#" id="nav-workshops" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:bg-brand-primary/5">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                Talleres
+            </a>
+
+            <p class="px-3 text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 mt-5">Sistema</p>
+            <a href="#" id="nav-users" class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:bg-brand-primary/5">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Configuración
+            </a>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-3 border-t border-gray-100 dark:border-white/5 shrink-0">
+            <div class="flex items-center gap-3 px-2 py-2">
+                <img src="https://ui-avatars.com/api/?name=Admin+Carma&background=A4161A&color=fff&size=64" class="w-8 h-8 rounded-full" alt="User">
+                <div class="flex-1 min-w-0">
+                    <p id="sidebar-user-name" class="text-sm font-semibold text-gray-800 dark:text-white truncate">Admin</p>
+                    <p class="text-[10px] text-gray-400 font-medium">Administrador</p>
+                </div>
+                <button id="nav-logout" title="Cerrar sesión" class="p-1.5 text-gray-400 hover:text-brand-primary transition-colors rounded-lg hover:bg-brand-primary/5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sidebar Overlay Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-black/30 hidden lg:hidden"></div>
+
+    <!-- MAIN PANEL -->
+    <div class="flex flex-col flex-1 overflow-hidden min-w-0">
+        <!-- Header -->
+        <header class="h-16 bg-white dark:bg-brand-dark-card border-b border-gray-100 dark:border-brand-dark-border flex items-center justify-between px-4 sm:px-6 shrink-0">
+            <div class="flex items-center gap-3">
+                <button id="sidebar-open" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-gray-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <div>
+                    <h1 id="page-title" class="text-sm font-bold text-gray-800 dark:text-white">Dashboard</h1>
+                    <p id="page-subtitle" class="text-[10px] text-gray-400 font-medium hidden sm:block">Vista general del taller — Mayo 2026</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <!-- Taller Selector -->
+                <div class="hidden sm:flex items-center gap-1.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 cursor-pointer hover:border-brand-primary/40 transition-colors">
+                    <svg class="w-3.5 h-3.5 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    Taller Central
+                    <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-gray-500 dark:text-gray-400">
+                    <svg id="theme-toggle-dark-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                    <svg id="theme-toggle-light-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </button>
+                <!-- Notifications -->
+                <button class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-gray-500 dark:text-gray-400 relative">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-brand-primary rounded-full"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div id="content" class="flex-1 overflow-x-hidden overflow-y-auto">
+
+<!-- ========================= DASHBOARD VIEW ========================= -->
+<div id="view-dashboard" class="p-4 sm:p-6 space-y-5 animate-fade-in">
+    <!-- KPI Row -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl p-5 border border-gray-100 dark:border-brand-dark-border">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Reparaciones activas</p>
+                    <p class="text-3xl font-extrabold text-gray-900 dark:text-white mt-1.5">14</p>
+                    <p class="text-xs text-green-500 font-semibold mt-2 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                        +3 esta semana
+                    </p>
+                </div>
+                <div class="w-10 h-10 bg-brand-primary/10 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl p-5 border border-gray-100 dark:border-brand-dark-border">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Citas hoy</p>
+                    <p class="text-3xl font-extrabold text-gray-900 dark:text-white mt-1.5">8</p>
+                    <p class="text-xs text-blue-500 font-semibold mt-2 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                        3 pendientes
+                    </p>
+                </div>
+                <div class="w-10 h-10 bg-blue-50 dark:bg-blue-500/10 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl p-5 border border-gray-100 dark:border-brand-dark-border">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Finalizados hoy</p>
+                    <p class="text-3xl font-extrabold text-gray-900 dark:text-white mt-1.5">5</p>
+                    <p class="text-xs text-gray-500 font-semibold mt-2">Facturación: <span class="text-gray-700 dark:text-gray-200">1.840€</span></p>
+                </div>
+                <div class="w-10 h-10 bg-green-50 dark:bg-green-500/10 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl p-5 border border-gray-100 dark:border-brand-dark-border">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tareas retrasadas</p>
+                    <p class="text-3xl font-extrabold text-brand-primary mt-1.5">3</p>
+                    <p class="text-xs text-brand-primary font-semibold mt-2 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        Requieren atención
+                    </p>
+                </div>
+                <div class="w-10 h-10 bg-brand-primary/10 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Carga por mecánico -->
+        <div class="lg:col-span-2 bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <h3 class="text-sm font-bold text-gray-800 dark:text-white">Carga de trabajo</h3>
+                    <p class="text-[10px] text-gray-400 font-medium mt-0.5">Distribución por mecánico — hoy</p>
+                </div>
+                <span class="text-[10px] font-bold bg-gray-50 dark:bg-white/5 text-gray-500 px-2.5 py-1 rounded-lg border border-gray-100 dark:border-white/10">4 mecánicos activos</span>
+            </div>
+            <div class="space-y-4">
+                <!-- Mecánico 1 -->
+                <div class="flex items-center gap-4">
+                    <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=48" class="w-8 h-8 rounded-full shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-semibold text-gray-700 dark:text-gray-200">Juan Pérez</span>
+                            <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full">5h / 8h</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 rounded-full" style="width:62%"></div>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1">3 tareas activas · 1 pendiente</p>
+                    </div>
+                </div>
+                <!-- Mecánico 2 - sobrecargado -->
+                <div class="flex items-center gap-4">
+                    <img src="https://ui-avatars.com/api/?name=Carlos+T&background=ef4444&color=fff&size=48" class="w-8 h-8 rounded-full shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-1.5">Carlos Torres <span class="text-[9px] font-bold text-brand-primary bg-brand-primary/10 px-1.5 py-0.5 rounded-full animate-pulse">⚠ Sobrecargado</span></span>
+                            <span class="text-[10px] font-bold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">9h / 8h</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-brand-primary rounded-full" style="width:100%"></div>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1">5 tareas activas · 2 retrasadas</p>
+                    </div>
+                </div>
+                <!-- Mecánico 3 -->
+                <div class="flex items-center gap-4">
+                    <img src="https://ui-avatars.com/api/?name=Ana+M&background=8b5cf6&color=fff&size=48" class="w-8 h-8 rounded-full shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-semibold text-gray-700 dark:text-gray-200">Ana Martínez</span>
+                            <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full">3h / 8h</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-500 rounded-full" style="width:37%"></div>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1">2 tareas activas · Disponible</p>
+                    </div>
+                </div>
+                <!-- Mecánico 4 -->
+                <div class="flex items-center gap-4">
+                    <img src="https://ui-avatars.com/api/?name=Sofia+L&background=10b981&color=fff&size=48" class="w-8 h-8 rounded-full shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-xs font-semibold text-gray-700 dark:text-gray-200">Sofía López</span>
+                            <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full">4h / 8h</span>
+                        </div>
+                        <div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-green-500 rounded-full" style="width:50%"></div>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1">2 tareas activas · 1 finalizada</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas y actividad reciente -->
+        <div class="space-y-4">
+            <!-- Alertas -->
+            <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+                <h3 class="text-sm font-bold text-gray-800 dark:text-white mb-4">Alertas activas</h3>
+                <div class="space-y-3">
+                    <div class="flex items-start gap-3 p-3 bg-brand-primary/5 border border-brand-primary/20 rounded-xl">
+                        <svg class="w-4 h-4 text-brand-primary mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div>
+                            <p class="text-xs font-semibold text-brand-primary">BMW 320d · REP-1208</p>
+                            <p class="text-[10px] text-gray-400 mt-0.5">Diagnóstico eléctrico lleva +2h de más</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-xl">
+                        <svg class="w-4 h-4 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <div>
+                            <p class="text-xs font-semibold text-amber-600">Audi A3 · Repuesto pendiente</p>
+                            <p class="text-[10px] text-gray-400 mt-0.5">Tarea bloqueada por pieza sin llegar</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-500/5 border border-blue-200 dark:border-blue-500/20 rounded-xl">
+                        <svg class="w-4 h-4 text-blue-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <div>
+                            <p class="text-xs font-semibold text-blue-600">3 citas mañana sin asignar</p>
+                            <p class="text-[10px] text-gray-400 mt-0.5">Requieren asignación de mecánico</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Últimas reparaciones -->
+            <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+                <h3 class="text-sm font-bold text-gray-800 dark:text-white mb-4">Actividad reciente</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">Cambio frenos · Seat Ibiza</p>
+                            <p class="text-[10px] text-gray-400">Hace 12 min · Juan Pérez</p>
+                        </div>
+                        <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full shrink-0">Finalizado</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">Diagnóstico · BMW 320d</p>
+                            <p class="text-[10px] text-gray-400">Hace 35 min · Carlos Torres</p>
+                        </div>
+                        <span class="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded-full shrink-0">En curso</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">Revisión ITV · Renault Clio</p>
+                            <p class="text-[10px] text-gray-400">Hace 1h · Sofía López</p>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full shrink-0">Pendiente</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= REPARACIONES VIEW ========================= -->
+<div id="view-repairs" class="p-4 sm:p-6 space-y-5 hidden animate-fade-in">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-sm font-bold text-gray-800 dark:text-white">Reparaciones</h2>
+            <p class="text-[10px] text-gray-400 font-medium mt-0.5">14 activas · 3 finalizadas hoy</p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            <!-- Filters -->
+            <div class="flex items-center gap-2">
+                <div class="relative">
+                    <svg class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input id="search-repair" type="text" placeholder="Matrícula o vehículo..." class="pl-8 pr-3 py-2 text-xs bg-white dark:bg-brand-dark-card border border-gray-200 dark:border-white/10 rounded-xl outline-none focus:border-brand-primary transition-all w-44">
+                </div>
+                <select id="filter-state" class="px-3 py-2 text-xs bg-white dark:bg-brand-dark-card border border-gray-200 dark:border-white/10 rounded-xl outline-none focus:border-brand-primary text-gray-600 dark:text-gray-300 cursor-pointer">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en_curso">En curso</option>
+                    <option value="finalizada">Finalizada</option>
+                </select>
+                <select id="filter-priority" class="px-3 py-2 text-xs bg-white dark:bg-brand-dark-card border border-gray-200 dark:border-white/10 rounded-xl outline-none focus:border-brand-primary text-gray-600 dark:text-gray-300 cursor-pointer">
+                    <option value="">Prioridad</option>
+                    <option value="alta">Alta</option>
+                    <option value="media">Media</option>
+                    <option value="baja">Baja</option>
+                </select>
+            </div>
+            <!-- View toggle -->
+            <div class="flex items-center bg-gray-100 dark:bg-white/5 rounded-xl p-1 gap-1">
+                <button id="btn-view-list" class="p-1.5 bg-white dark:bg-white/10 text-brand-primary rounded-lg shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                </button>
+                <button id="btn-view-kanban" class="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-lg transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="18" rx="1.5" stroke-width="2"/><rect x="14" y="3" width="7" height="10" rx="1.5" stroke-width="2"/><rect x="14" y="17" width="7" height="4" rx="1.5" stroke-width="2"/></svg>
+                </button>
+            </div>
+            <button class="flex items-center gap-1.5 px-3 py-2 bg-brand-primary hover:bg-brand-secondary text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-brand-primary/20">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Nueva reparación
+            </button>
+        </div>
+    </div>
+
+    <!-- List View -->
+    <div id="repairs-list" class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border overflow-hidden">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-gray-100 dark:border-white/5">
+                    <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">ID / Vehículo</th>
+                    <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden sm:table-cell">Cliente</th>
+                    <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Estado</th>
+                    <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden md:table-cell">Prioridad</th>
+                    <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden lg:table-cell">Mecánico</th>
+                    <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden lg:table-cell">Tiempo</th>
+                    <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden xl:table-cell">Entrada</th>
+                    <th class="px-5 py-3.5"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Row 1 -->
+                <tr class="list-repair-row border-b border-gray-50 dark:border-white/3 hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors cursor-pointer" data-plate="1234 ABC" data-model="Audi A3" data-operator="Juan" data-state="en_curso" data-priority="alta">
+                    <td class="px-5 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-blue-50 dark:bg-blue-500/10 rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white">Audi A3 · 1234 ABC</p>
+                                <p class="text-[10px] text-gray-400 font-mono mt-0.5">REP-1215</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-5 py-4 hidden sm:table-cell">
+                        <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Juan Pérez</p>
+                        <p class="text-[10px] text-gray-400">612 345 678</p>
+                    </td>
+                    <td class="px-5 py-4"><span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">En curso</span></td>
+                    <td class="px-5 py-4 hidden md:table-cell"><span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-brand-primary/10 text-brand-primary">Alta</span></td>
+                    <td class="px-5 py-4 hidden lg:table-cell">
+                        <div class="flex items-center gap-2">
+                            <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=32" class="w-6 h-6 rounded-full">
+                            <span class="text-xs text-gray-600 dark:text-gray-300">Juan P.</span>
+                        </div>
+                    </td>
+                    <td class="px-5 py-4 hidden lg:table-cell">
+                        <p class="text-xs font-semibold font-mono text-gray-700 dark:text-gray-200" id="live-timer-row">01:14:32</p>
+                        <p class="text-[10px] text-gray-400">est. 2h</p>
+                    </td>
+                    <td class="px-5 py-4 hidden xl:table-cell"><p class="text-xs text-gray-500">18/05/2026</p></td>
+                    <td class="px-5 py-4 text-right">
+                        <button data-open-repair="1215" class="text-[10px] font-bold text-brand-primary hover:underline px-2 py-1 rounded-lg hover:bg-brand-primary/5 transition-all">Ver →</button>
+                    </td>
+                </tr>
+                <!-- Row 2 -->
+                <tr class="list-repair-row border-b border-gray-50 dark:border-white/3 hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors cursor-pointer" data-plate="5678 DEF" data-model="Tesla Model 3" data-operator="Carlos" data-state="pendiente" data-priority="alta">
+                    <td class="px-5 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">BMW 320d · 9012 GHI <span class="text-[9px] bg-brand-primary text-white px-1.5 py-0.5 rounded-full font-bold">URGENTE</span></p>
+                                <p class="text-[10px] text-gray-400 font-mono mt-0.5">REP-1208</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-5 py-4 hidden sm:table-cell">
+                        <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Carlos Sánchez</p>
+                        <p class="text-[10px] text-gray-400">609 888 111</p>
+                    </td>
+                    <td class="px-5 py-4"><span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-brand-primary/10 text-brand-primary">Pendiente</span></td>
+                    <td class="px-5 py-4 hidden md:table-cell"><span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-brand-primary/10 text-brand-primary">Alta</span></td>
+                    <td class="px-5 py-4 hidden lg:table-cell">
+                        <div class="flex items-center gap-2">
+                            <img src="https://ui-avatars.com/api/?name=Carlos+T&background=ef4444&color=fff&size=32" class="w-6 h-6 rounded-full">
+                            <span class="text-xs text-gray-600 dark:text-gray-300">Carlos T.</span>
+                        </div>
+                    </td>
+                    <td class="px-5 py-4 hidden lg:table-cell">
+                        <p class="text-xs font-semibold font-mono text-brand-primary">03:42:10 ⚠</p>
+                        <p class="text-[10px] text-gray-400">est. 2h</p>
+                    </td>
+                    <td class="px-5 py-4 hidden xl:table-cell"><p class="text-xs text-gray-500">17/05/2026</p></td>
+                    <td class="px-5 py-4 text-right">
+                        <button data-open-repair="1208" class="text-[10px] font-bold text-brand-primary hover:underline px-2 py-1 rounded-lg hover:bg-brand-primary/5 transition-all">Ver →</button>
+                    </td>
+                </tr>
+                <!-- Row 3 -->
+                <tr class="list-repair-row border-b border-gray-50 dark:border-white/3 hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors cursor-pointer" data-plate="3456 JKL" data-model="Seat Ibiza" data-operator="Ana" data-state="finalizada" data-priority="baja">
+                    <td class="px-5 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-green-50 dark:bg-green-500/10 rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white">Seat Ibiza · 3456 JKL</p>
+                                <p class="text-[10px] text-gray-400 font-mono mt-0.5">REP-1201</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-5 py-4 hidden sm:table-cell">
+                        <p class="text-xs font-medium text-gray-700 dark:text-gray-300">María García</p>
+                        <p class="text-[10px] text-gray-400">655 123 456</p>
+                    </td>
+                    <td class="px-5 py-4"><span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-50 dark:bg-green-500/10 text-green-600">Finalizada</span></td>
+                    <td class="px-5 py-4 hidden md:table-cell"><span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-gray-100 dark:bg-white/10 text-gray-500">Baja</span></td>
+                    <td class="px-5 py-4 hidden lg:table-cell">
+                        <div class="flex items-center gap-2">
+                            <img src="https://ui-avatars.com/api/?name=Ana+M&background=8b5cf6&color=fff&size=32" class="w-6 h-6 rounded-full">
+                            <span class="text-xs text-gray-600 dark:text-gray-300">Ana M.</span>
+                        </div>
+                    </td>
+                    <td class="px-5 py-4 hidden lg:table-cell">
+                        <p class="text-xs font-semibold font-mono text-gray-700 dark:text-gray-200">01:45:00</p>
+                        <p class="text-[10px] text-green-500">est. 2h ✓</p>
+                    </td>
+                    <td class="px-5 py-4 hidden xl:table-cell"><p class="text-xs text-gray-500">18/05/2026</p></td>
+                    <td class="px-5 py-4 text-right">
+                        <button data-open-repair="1201" class="text-[10px] font-bold text-brand-primary hover:underline px-2 py-1 rounded-lg hover:bg-brand-primary/5 transition-all">Ver →</button>
+                    </td>
+                </tr>
+                <!-- Row 4 -->
+                <tr class="list-repair-row hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors cursor-pointer" data-plate="7890 MNO" data-model="Renault Clio" data-operator="Sofia" data-state="en_curso" data-priority="media">
+                    <td class="px-5 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-blue-50 dark:bg-blue-500/10 rounded-lg flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-900 dark:text-white">Renault Clio · 7890 MNO</p>
+                                <p class="text-[10px] text-gray-400 font-mono mt-0.5">REP-1199</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-5 py-4 hidden sm:table-cell">
+                        <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Pedro Ruiz</p>
+                        <p class="text-[10px] text-gray-400">666 555 444</p>
+                    </td>
+                    <td class="px-5 py-4"><span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600">En curso</span></td>
+                    <td class="px-5 py-4 hidden md:table-cell"><span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600">Media</span></td>
+                    <td class="px-5 py-4 hidden lg:table-cell">
+                        <div class="flex items-center gap-2">
+                            <img src="https://ui-avatars.com/api/?name=Sofia+L&background=10b981&color=fff&size=32" class="w-6 h-6 rounded-full">
+                            <span class="text-xs text-gray-600 dark:text-gray-300">Sofía L.</span>
+                        </div>
+                    </td>
+                    <td class="px-5 py-4 hidden lg:table-cell">
+                        <p class="text-xs font-semibold font-mono text-gray-700 dark:text-gray-200">00:52:17</p>
+                        <p class="text-[10px] text-gray-400">est. 3h</p>
+                    </td>
+                    <td class="px-5 py-4 hidden xl:table-cell"><p class="text-xs text-gray-500">18/05/2026</p></td>
+                    <td class="px-5 py-4 text-right">
+                        <button data-open-repair="1199" class="text-[10px] font-bold text-brand-primary hover:underline px-2 py-1 rounded-lg hover:bg-brand-primary/5 transition-all">Ver →</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Kanban view (hidden by default) -->
+    <div id="repairs-kanban" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Pendiente -->
+            <div class="bg-gray-50 dark:bg-white/3 rounded-2xl p-4 border border-gray-100 dark:border-white/5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-gray-400"></div>
+                        <h4 class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Pendiente</h4>
+                    </div>
+                    <span id="count-pendiente" class="text-[10px] font-bold bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">3</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="repair-card bg-white dark:bg-brand-dark-card rounded-xl p-4 border border-gray-100 dark:border-white/5 shadow-sm cursor-pointer" data-plate="9012 GHI" data-model="BMW 320d" data-operator="Carlos" data-state="Pendiente" data-priority="Alta">
+                        <div class="flex items-start justify-between mb-2">
+                            <p class="text-xs font-bold text-gray-900 dark:text-white">BMW 320d</p>
+                            <span class="text-[9px] font-bold bg-brand-primary text-white px-1.5 py-0.5 rounded-full">URGENTE</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mb-3 font-mono">9012 GHI · REP-1208</p>
+                        <p class="text-[10px] text-gray-500 mb-3">Diagnóstico eléctrico completo</p>
+                        <div class="flex items-center justify-between">
+                            <img src="https://ui-avatars.com/api/?name=Carlos+T&background=ef4444&color=fff&size=32" class="w-6 h-6 rounded-full">
+                            <button data-open-repair="1208" class="text-[10px] font-bold text-brand-primary">Ver →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- En Curso -->
+            <div class="bg-blue-50/50 dark:bg-blue-500/3 rounded-2xl p-4 border border-blue-100 dark:border-blue-500/10">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                        <h4 class="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wider">En Curso</h4>
+                    </div>
+                    <span id="count-en-curso" class="text-[10px] font-bold bg-blue-100 dark:bg-blue-500/20 text-blue-600 px-2 py-0.5 rounded-full">2</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="repair-card bg-white dark:bg-brand-dark-card rounded-xl p-4 border border-gray-100 dark:border-white/5 shadow-sm cursor-pointer" data-plate="1234 ABC" data-model="Audi A3" data-operator="Juan" data-state="En Curso" data-priority="Alta">
+                        <div class="flex items-start justify-between mb-2">
+                            <p class="text-xs font-bold text-gray-900 dark:text-white">Audi A3</p>
+                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded-full">En curso</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mb-3 font-mono">1234 ABC · REP-1215</p>
+                        <div class="mb-3">
+                            <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>Progreso tareas</span><span>2/4</span></div>
+                            <div class="h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-blue-500 rounded-full" style="width:50%"></div></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=32" class="w-6 h-6 rounded-full">
+                            <button data-open-repair="1215" class="text-[10px] font-bold text-brand-primary">Ver →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Finalizada -->
+            <div class="bg-green-50/50 dark:bg-green-500/3 rounded-2xl p-4 border border-green-100 dark:border-green-500/10">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        <h4 class="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider">Finalizada</h4>
+                    </div>
+                    <span id="count-completado" class="text-[10px] font-bold bg-green-100 dark:bg-green-500/20 text-green-600 px-2 py-0.5 rounded-full">1</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="repair-card bg-white dark:bg-brand-dark-card rounded-xl p-4 border border-gray-100 dark:border-white/5 shadow-sm cursor-pointer" data-plate="3456 JKL" data-model="Seat Ibiza" data-operator="Ana" data-state="Completado" data-priority="Baja">
+                        <div class="flex items-start justify-between mb-2">
+                            <p class="text-xs font-bold text-gray-900 dark:text-white">Seat Ibiza</p>
+                            <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full">Finalizada</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mb-3 font-mono">3456 JKL · REP-1201</p>
+                        <div class="flex items-center justify-between">
+                            <img src="https://ui-avatars.com/api/?name=Ana+M&background=8b5cf6&color=fff&size=32" class="w-6 h-6 rounded-full">
+                            <button data-open-repair="1201" class="text-[10px] font-bold text-brand-primary">Ver →</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= REPAIR DETAIL VIEW ========================= -->
+<div id="view-repair-detail" class="p-4 sm:p-6 space-y-5 hidden animate-fade-in">
+    <!-- Back + Header -->
+    <div class="flex items-center gap-4">
+        <button id="back-to-repairs" class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-brand-primary transition-colors group">
+            <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Reparaciones
+        </button>
+        <span class="text-gray-300 dark:text-white/20">/</span>
+        <span id="detail-repair-id" class="text-xs font-bold text-gray-400 font-mono">REP-1215</span>
+    </div>
+
+    <!-- Main detail grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Left: Main info -->
+        <div class="lg:col-span-2 space-y-5">
+            <!-- Header card -->
+            <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-6">
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 rounded-xl flex items-center justify-center shrink-0">
+                            <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1"/></svg>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-extrabold text-gray-900 dark:text-white">Audi A3 · 1234 ABC</h2>
+                            <p class="text-xs text-gray-400 mt-0.5">Cambio de pastillas de freno + revisión sistema</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-[10px] font-bold px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-600">En curso</span>
+                        <span class="text-[10px] font-bold px-3 py-1.5 rounded-full bg-brand-primary/10 text-brand-primary">Alta prioridad</span>
+                    </div>
+                </div>
+                <!-- Info grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-5 border-t border-gray-100 dark:border-white/5">
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Entrada</p>
+                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">18/05/2026</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Estimado</p>
+                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">18/05/2026</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Coste est.</p>
+                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">240,00€</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Taller</p>
+                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Taller Central</p>
+                    </div>
+                </div>
+                <!-- Progress -->
+                <div class="mt-5">
+                    <div class="flex justify-between text-xs text-gray-500 mb-2"><span class="font-semibold">Progreso general</span><span class="font-bold text-gray-700 dark:text-gray-200">2 / 4 tareas</span></div>
+                    <div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full transition-all duration-700" style="width:50%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks list -->
+            <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border overflow-hidden">
+                <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-white/5">
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-white">Tareas</h3>
+                        <p class="text-[10px] text-gray-400 font-medium mt-0.5">4 tareas · 2 completadas</p>
+                    </div>
+                    <button class="flex items-center gap-1 text-xs font-semibold text-brand-primary hover:bg-brand-primary/5 px-2.5 py-1.5 rounded-xl transition-all">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        Añadir tarea
+                    </button>
+                </div>
+                <div class="divide-y divide-gray-50 dark:divide-white/3">
+                    <!-- Tarea 1: Finalizada -->
+                    <div class="task-item-card px-5 py-4 flex items-start gap-4 group">
+                        <div class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shrink-0 mt-0.5">
+                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-2 flex-wrap">
+                                <p class="text-xs font-semibold text-gray-500 line-through">Inspección visual de frenos y discos</p>
+                                <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full shrink-0">Finalizada</span>
+                            </div>
+                            <div class="flex items-center gap-3 mt-2 flex-wrap">
+                                <div class="flex items-center gap-1.5">
+                                    <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=24" class="w-4 h-4 rounded-full">
+                                    <span class="text-[10px] text-gray-400">Juan Pérez</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-gray-400">00:25:00</span>
+                                <span class="text-[10px] text-gray-400">est. 0.5h</span>
+                                <span class="text-[10px] font-bold text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">Baja</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tarea 2: Finalizada -->
+                    <div class="task-item-card px-5 py-4 flex items-start gap-4 group">
+                        <div class="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shrink-0 mt-0.5">
+                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-2 flex-wrap">
+                                <p class="text-xs font-semibold text-gray-500 line-through">Desmontaje de ruedas y pastillas</p>
+                                <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full shrink-0">Finalizada</span>
+                            </div>
+                            <div class="flex items-center gap-3 mt-2 flex-wrap">
+                                <div class="flex items-center gap-1.5">
+                                    <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=24" class="w-4 h-4 rounded-full">
+                                    <span class="text-[10px] text-gray-400">Juan Pérez</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-gray-400">00:35:00</span>
+                                <span class="text-[10px] text-gray-400">est. 0.5h</span>
+                                <span class="text-[10px] font-bold text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">Media</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tarea 3: En curso (LIVE TIMER) -->
+                    <div class="task-item-card px-5 py-4 flex items-start gap-4 group bg-blue-50/30 dark:bg-blue-500/3">
+                        <div class="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center shrink-0 mt-0.5">
+                            <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-2 flex-wrap">
+                                <p class="text-xs font-bold text-gray-800 dark:text-white">Montaje de pastillas nuevas y calibrado</p>
+                                <span class="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>En curso</span>
+                            </div>
+                            <div class="flex items-center gap-3 mt-2 flex-wrap">
+                                <div class="flex items-center gap-1.5">
+                                    <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=24" class="w-4 h-4 rounded-full">
+                                    <span class="text-[10px] text-gray-400">Juan Pérez</span>
+                                </div>
+                                <span class="text-[10px] font-mono font-bold text-blue-600" id="live-timer">01:14:32</span>
+                                <span class="text-[10px] text-gray-400">est. 1h</span>
+                                <span class="text-[10px] font-bold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">Alta</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Tarea 4: Pendiente -->
+                    <div class="task-item-card px-5 py-4 flex items-start gap-4 group">
+                        <div class="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600 shrink-0 mt-0.5"></div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-2 flex-wrap">
+                                <p class="text-xs font-semibold text-gray-700 dark:text-gray-300">Prueba de frenada y entrega al cliente</p>
+                                <span class="text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full shrink-0">Pendiente</span>
+                            </div>
+                            <div class="flex items-center gap-3 mt-2 flex-wrap">
+                                <div class="flex items-center gap-1.5">
+                                    <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=24" class="w-4 h-4 rounded-full">
+                                    <span class="text-[10px] text-gray-400">Juan Pérez</span>
+                                </div>
+                                <span class="text-[10px] font-mono text-gray-400">00:00:00</span>
+                                <span class="text-[10px] text-gray-400">est. 0.5h</span>
+                                <span class="text-[10px] font-bold text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded-full">Baja</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+                <h3 class="text-sm font-bold text-gray-800 dark:text-white mb-4">Comentarios</h3>
+                <div class="space-y-4 mb-5">
+                    <div class="flex items-start gap-3">
+                        <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=32" class="w-7 h-7 rounded-full shrink-0 mt-0.5">
+                        <div class="flex-1 bg-gray-50 dark:bg-white/3 rounded-xl px-4 py-3">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-[10px] font-bold text-gray-700 dark:text-gray-200">Juan Pérez</span>
+                                <span class="text-[10px] text-gray-400">18/05/2026 · 09:35</span>
+                            </div>
+                            <p class="text-xs text-gray-600 dark:text-gray-400">Las pastillas traseras tienen más desgaste del esperado, posiblemente haya que revisar el líquido de frenos también.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <img src="https://ui-avatars.com/api/?name=Admin+Carma&background=A4161A&color=fff&size=32" class="w-7 h-7 rounded-full shrink-0 mt-1">
+                    <div class="flex-1 relative">
+                        <input type="text" placeholder="Añadir comentario..." class="w-full px-4 py-3 pr-12 text-xs bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl outline-none focus:border-brand-primary transition-all">
+                        <button class="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg hover:bg-brand-primary/10 text-brand-primary transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Client + Vehicle + Files -->
+        <div class="space-y-4">
+            <!-- Client info -->
+            <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Cliente</h3>
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="https://ui-avatars.com/api/?name=Juan+Perez&background=E5383B&color=fff&size=48" class="w-10 h-10 rounded-xl">
+                    <div>
+                        <p class="text-sm font-bold text-gray-800 dark:text-white">Juan Pérez</p>
+                        <p class="text-[10px] text-gray-400">Cliente desde 2023</p>
+                    </div>
+                </div>
+                <div class="space-y-2.5">
+                    <div class="flex items-center gap-2.5 text-xs text-gray-600 dark:text-gray-400">
+                        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        612 345 678
+                    </div>
+                    <div class="flex items-center gap-2.5 text-xs text-gray-600 dark:text-gray-400">
+                        <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        juan@ejemplo.es
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle info -->
+            <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Vehículo</h3>
+                <div class="space-y-2.5">
+                    <div class="flex justify-between">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Matrícula</span>
+                        <span class="text-xs font-bold font-mono text-gray-800 dark:text-white">1234 ABC</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Marca</span>
+                        <span class="text-xs font-semibold text-gray-700 dark:text-gray-200">Audi</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Modelo</span>
+                        <span class="text-xs font-semibold text-gray-700 dark:text-gray-200">A3 2.0 TDI</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Año</span>
+                        <span class="text-xs font-semibold text-gray-700 dark:text-gray-200">2019</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Km</span>
+                        <span class="text-xs font-semibold text-gray-700 dark:text-gray-200">87.450 km</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Color</span>
+                        <div class="flex items-center gap-1.5"><div class="w-3 h-3 rounded-full bg-gray-800 dark:bg-gray-300 border border-gray-200"></div><span class="text-xs font-semibold text-gray-700 dark:text-gray-200">Negro</span></div>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100 dark:border-white/5">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Historial</p>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2 text-[10px] text-gray-500">
+                            <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
+                            <span>10/01/2026 · Cambio aceite</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-[10px] text-gray-500">
+                            <div class="w-1.5 h-1.5 rounded-full bg-gray-300"></div>
+                            <span>04/09/2025 · Alineación</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time summary -->
+            <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Tiempos</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Estimado total</span>
+                        <span class="text-xs font-semibold text-gray-700 dark:text-gray-200 font-mono">2h 30m</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Tiempo real</span>
+                        <span class="text-xs font-bold text-blue-500 font-mono">02:14:32</span>
+                    </div>
+                    <div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden mt-1">
+                        <div class="h-full bg-blue-500 rounded-full" style="width:70%"></div>
+                    </div>
+                    <p class="text-[10px] text-gray-400">70% del tiempo estimado consumido</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= CITAS VIEW ========================= -->
+<div id="view-appointments" class="p-4 sm:p-6 space-y-5 hidden animate-fade-in">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-sm font-bold text-gray-800 dark:text-white">Citas</h2>
+            <p class="text-[10px] text-gray-400 font-medium mt-0.5">Mayo 2026</p>
+        </div>
+        <button class="flex items-center gap-1.5 px-3 py-2 bg-brand-primary hover:bg-brand-secondary text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-brand-primary/20">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            Nueva cita
+        </button>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Calendar -->
+        <div class="lg:col-span-2 bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <div class="grid grid-cols-7 gap-px mb-3">
+                <div class="text-center text-[10px] font-bold text-gray-400 uppercase py-2">L</div>
+                <div class="text-center text-[10px] font-bold text-gray-400 uppercase py-2">M</div>
+                <div class="text-center text-[10px] font-bold text-gray-400 uppercase py-2">X</div>
+                <div class="text-center text-[10px] font-bold text-gray-400 uppercase py-2">J</div>
+                <div class="text-center text-[10px] font-bold text-gray-400 uppercase py-2">V</div>
+                <div class="text-center text-[10px] font-bold text-gray-400 uppercase py-2">S</div>
+                <div class="text-center text-[10px] font-bold text-gray-400 uppercase py-2">D</div>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+        </div>
+        <!-- Today's Citas -->
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Hoy — 18 Mayo</h3>
+            <div class="space-y-3">
+                <div class="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/5">
+                    <div class="text-center shrink-0">
+                        <p class="text-xs font-extrabold text-gray-800 dark:text-white">09:00</p>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">Cambio aceite · Ford Focus</p>
+                        <p class="text-[10px] text-gray-400">María García · 655 123 456</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full shrink-0">Confirmada</span>
+                </div>
+                <div class="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/5">
+                    <div class="text-center shrink-0">
+                        <p class="text-xs font-extrabold text-gray-800 dark:text-white">11:30</p>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">Revisión ITV · Seat León</p>
+                        <p class="text-[10px] text-gray-400">Pedro Ruiz · 666 555 444</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-full shrink-0">Pendiente</span>
+                </div>
+                <div class="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/5">
+                    <div class="text-center shrink-0">
+                        <p class="text-xs font-extrabold text-gray-800 dark:text-white">16:00</p>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">Diagnosis · Opel Astra</p>
+                        <p class="text-[10px] text-gray-400">Laura Fernández</p>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full shrink-0">Sin asignar</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= MECÁNICOS VIEW ========================= -->
+<div id="view-mechanics" class="p-4 sm:p-6 space-y-5 hidden animate-fade-in">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-sm font-bold text-gray-800 dark:text-white">Mecánicos</h2>
+            <p class="text-[10px] text-gray-400 font-medium mt-0.5">4 activos · carga de trabajo y rendimiento</p>
+        </div>
+        <button class="flex items-center gap-1.5 px-3 py-2 bg-brand-primary hover:bg-brand-secondary text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-brand-primary/20">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            Añadir mecánico
+        </button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Mecánico Card -->
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <div class="flex items-start gap-4 mb-5">
+                <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=64" class="w-12 h-12 rounded-xl">
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-white">Juan Pérez</h3>
+                        <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full">Disponible</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Mecánico · Taller Central</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <span class="text-[10px] font-semibold text-gray-500 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg> 612 345 678</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl">
+                    <p class="text-lg font-extrabold text-gray-800 dark:text-white">3</p>
+                    <p class="text-[10px] text-gray-400 font-medium mt-0.5">Activas</p>
+                </div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl">
+                    <p class="text-lg font-extrabold text-gray-800 dark:text-white">18</p>
+                    <p class="text-[10px] text-gray-400 font-medium mt-0.5">Este mes</p>
+                </div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl">
+                    <p class="text-lg font-extrabold text-green-500">96%</p>
+                    <p class="text-[10px] text-gray-400 font-medium mt-0.5">A tiempo</p>
+                </div>
+            </div>
+            <div>
+                <div class="flex justify-between text-[10px] text-gray-400 mb-1.5"><span>Carga hoy</span><span class="font-bold">5h / 8h</span></div>
+                <div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500 rounded-full" style="width:62%"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Mecánico Sobrecargado -->
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-brand-primary/30 p-5">
+            <div class="flex items-start gap-4 mb-5">
+                <img src="https://ui-avatars.com/api/?name=Carlos+T&background=ef4444&color=fff&size=64" class="w-12 h-12 rounded-xl">
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-white">Carlos Torres</h3>
+                        <span class="text-[10px] font-bold text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full animate-pulse">⚠ Sobrecargado</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Mecánico · Taller Central</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <span class="text-[10px] font-semibold text-gray-500 flex items-center gap-1"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg> 609 888 111</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="text-center p-3 bg-brand-primary/5 rounded-xl">
+                    <p class="text-lg font-extrabold text-brand-primary">5</p>
+                    <p class="text-[10px] text-gray-400 font-medium mt-0.5">Activas</p>
+                </div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl">
+                    <p class="text-lg font-extrabold text-gray-800 dark:text-white">22</p>
+                    <p class="text-[10px] text-gray-400 font-medium mt-0.5">Este mes</p>
+                </div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl">
+                    <p class="text-lg font-extrabold text-amber-500">78%</p>
+                    <p class="text-[10px] text-gray-400 font-medium mt-0.5">A tiempo</p>
+                </div>
+            </div>
+            <div>
+                <div class="flex justify-between text-[10px] text-gray-400 mb-1.5"><span>Carga hoy</span><span class="font-bold text-brand-primary">9h / 8h — Excedida</span></div>
+                <div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-brand-primary rounded-full" style="width:100%"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Mecánico 3 -->
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <div class="flex items-start gap-4 mb-5">
+                <img src="https://ui-avatars.com/api/?name=Ana+M&background=8b5cf6&color=fff&size=64" class="w-12 h-12 rounded-xl">
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-white">Ana Martínez</h3>
+                        <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full">Disponible</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Mecánico · Taller Central</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-lg font-extrabold text-gray-800 dark:text-white">2</p><p class="text-[10px] text-gray-400 font-medium mt-0.5">Activas</p></div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-lg font-extrabold text-gray-800 dark:text-white">14</p><p class="text-[10px] text-gray-400 font-medium mt-0.5">Este mes</p></div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-lg font-extrabold text-green-500">100%</p><p class="text-[10px] text-gray-400 font-medium mt-0.5">A tiempo</p></div>
+            </div>
+            <div><div class="flex justify-between text-[10px] text-gray-400 mb-1.5"><span>Carga hoy</span><span class="font-bold">3h / 8h</span></div><div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-purple-500 rounded-full" style="width:37%"></div></div></div>
+        </div>
+        <!-- Mecánico 4 -->
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <div class="flex items-start gap-4 mb-5">
+                <img src="https://ui-avatars.com/api/?name=Sofia+L&background=10b981&color=fff&size=64" class="w-12 h-12 rounded-xl">
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-white">Sofía López</h3>
+                        <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full">Disponible</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-0.5">Mecánico · Taller Central</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-lg font-extrabold text-gray-800 dark:text-white">2</p><p class="text-[10px] text-gray-400 font-medium mt-0.5">Activas</p></div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-lg font-extrabold text-gray-800 dark:text-white">16</p><p class="text-[10px] text-gray-400 font-medium mt-0.5">Este mes</p></div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-lg font-extrabold text-green-500">94%</p><p class="text-[10px] text-gray-400 font-medium mt-0.5">A tiempo</p></div>
+            </div>
+            <div><div class="flex justify-between text-[10px] text-gray-400 mb-1.5"><span>Carga hoy</span><span class="font-bold">4h / 8h</span></div><div class="h-2 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-green-500 rounded-full" style="width:50%"></div></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= VEHÍCULOS VIEW ========================= -->
+<div id="view-vehicles" class="p-4 sm:p-6 space-y-5 hidden animate-fade-in">
+    <div class="flex items-center justify-between">
+        <div><h2 class="text-sm font-bold text-gray-800 dark:text-white">Vehículos</h2><p class="text-[10px] text-gray-400 font-medium mt-0.5">Flota registrada · histórico de reparaciones</p></div>
+        <button class="flex items-center gap-1.5 px-3 py-2 bg-brand-primary hover:bg-brand-secondary text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-brand-primary/20"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>Añadir vehículo</button>
+    </div>
+    <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border overflow-hidden">
+        <table class="w-full text-sm">
+            <thead><tr class="border-b border-gray-100 dark:border-white/5">
+                <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Matrícula</th>
+                <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden sm:table-cell">Marca / Modelo</th>
+                <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden md:table-cell">Cliente</th>
+                <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden lg:table-cell">Año</th>
+                <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden lg:table-cell">Km</th>
+                <th class="text-left px-5 py-3.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden xl:table-cell">Reparaciones</th>
+                <th class="px-5 py-3.5"></th>
+            </tr></thead>
+            <tbody>
+                <tr class="border-b border-gray-50 dark:border-white/3 hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors">
+                    <td class="px-5 py-4"><span class="text-xs font-bold font-mono text-gray-900 dark:text-white">1234 ABC</span></td>
+                    <td class="px-5 py-4 hidden sm:table-cell"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Audi A3</p><p class="text-[10px] text-gray-400">2.0 TDI · Negro</p></td>
+                    <td class="px-5 py-4 hidden md:table-cell"><p class="text-xs font-medium text-gray-700 dark:text-gray-300">Juan Pérez</p></td>
+                    <td class="px-5 py-4 hidden lg:table-cell"><p class="text-xs text-gray-500">2019</p></td>
+                    <td class="px-5 py-4 hidden lg:table-cell"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">87.450 km</p></td>
+                    <td class="px-5 py-4 hidden xl:table-cell"><span class="text-[10px] font-bold bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 px-2.5 py-1 rounded-full">3 históricas</span></td>
+                    <td class="px-5 py-4 text-right"><button class="text-[10px] font-bold text-brand-primary hover:underline">Ver historial →</button></td>
+                </tr>
+                <tr class="border-b border-gray-50 dark:border-white/3 hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors">
+                    <td class="px-5 py-4"><span class="text-xs font-bold font-mono text-gray-900 dark:text-white">5678 DEF</span></td>
+                    <td class="px-5 py-4 hidden sm:table-cell"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Tesla Model 3</p><p class="text-[10px] text-gray-400">Long Range · Blanco</p></td>
+                    <td class="px-5 py-4 hidden md:table-cell"><p class="text-xs font-medium text-gray-700 dark:text-gray-300">Marta Gómez</p></td>
+                    <td class="px-5 py-4 hidden lg:table-cell"><p class="text-xs text-gray-500">2022</p></td>
+                    <td class="px-5 py-4 hidden lg:table-cell"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">42.100 km</p></td>
+                    <td class="px-5 py-4 hidden xl:table-cell"><span class="text-[10px] font-bold bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 px-2.5 py-1 rounded-full">2 históricas</span></td>
+                    <td class="px-5 py-4 text-right"><button class="text-[10px] font-bold text-brand-primary hover:underline">Ver historial →</button></td>
+                </tr>
+                <tr class="border-b border-gray-50 dark:border-white/3 hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors">
+                    <td class="px-5 py-4"><span class="text-xs font-bold font-mono text-gray-900 dark:text-white">9012 GHI</span></td>
+                    <td class="px-5 py-4 hidden sm:table-cell"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">BMW 320d</p><p class="text-[10px] text-gray-400">xDrive · Gris</p></td>
+                    <td class="px-5 py-4 hidden md:table-cell"><p class="text-xs font-medium text-gray-700 dark:text-gray-300">Carlos Sánchez</p></td>
+                    <td class="px-5 py-4 hidden lg:table-cell"><p class="text-xs text-gray-500">2020</p></td>
+                    <td class="px-5 py-4 hidden lg:table-cell"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">120.800 km</p></td>
+                    <td class="px-5 py-4 hidden xl:table-cell"><span class="text-[10px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 px-2.5 py-1 rounded-full">En taller</span></td>
+                    <td class="px-5 py-4 text-right"><button class="text-[10px] font-bold text-brand-primary hover:underline">Ver historial →</button></td>
+                </tr>
+                <tr class="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors">
+                    <td class="px-5 py-4"><span class="text-xs font-bold font-mono text-gray-900 dark:text-white">3456 JKL</span></td>
+                    <td class="px-5 py-4 hidden sm:table-cell"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Seat Ibiza</p><p class="text-[10px] text-gray-400">FR · Rojo</p></td>
+                    <td class="px-5 py-4 hidden md:table-cell"><p class="text-xs font-medium text-gray-700 dark:text-gray-300">María García</p></td>
+                    <td class="px-5 py-4 hidden lg:table-cell"><p class="text-xs text-gray-500">2021</p></td>
+                    <td class="px-5 py-4 hidden lg:table-cell"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">38.200 km</p></td>
+                    <td class="px-5 py-4 hidden xl:table-cell"><span class="text-[10px] font-bold bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 px-2.5 py-1 rounded-full">1 histórica</span></td>
+                    <td class="px-5 py-4 text-right"><button class="text-[10px] font-bold text-brand-primary hover:underline">Ver historial →</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ========================= CLIENTES VIEW ========================= -->
+<div id="view-clients" class="p-4 sm:p-6 space-y-5 hidden animate-fade-in">
+    <div class="flex items-center justify-between">
+        <div><h2 class="text-sm font-bold text-gray-800 dark:text-white">Clientes</h2><p class="text-[10px] text-gray-400 font-medium mt-0.5">Directorio de clientes registrados</p></div>
+        <button class="flex items-center gap-1.5 px-3 py-2 bg-brand-primary hover:bg-brand-secondary text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-brand-primary/20"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>Nuevo cliente</button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <div class="flex items-center gap-3 mb-4">
+                <img src="https://ui-avatars.com/api/?name=Juan+Perez&background=E5383B&color=fff&size=48" class="w-10 h-10 rounded-xl">
+                <div><p class="text-sm font-bold text-gray-800 dark:text-white">Juan Pérez</p><p class="text-[10px] text-gray-400">612 345 678</p></div>
+            </div>
+            <div class="space-y-1.5 mb-4">
+                <p class="text-[10px] text-gray-400 flex items-center gap-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>juan@ejemplo.es</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-3 border-t border-gray-100 dark:border-white/5">
+                <div class="text-center"><p class="text-sm font-extrabold text-gray-800 dark:text-white">2</p><p class="text-[10px] text-gray-400">Vehículos</p></div>
+                <div class="text-center"><p class="text-sm font-extrabold text-gray-800 dark:text-white">5</p><p class="text-[10px] text-gray-400">Reparaciones</p></div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <div class="flex items-center gap-3 mb-4">
+                <img src="https://ui-avatars.com/api/?name=Marta+Gomez&background=8b5cf6&color=fff&size=48" class="w-10 h-10 rounded-xl">
+                <div><p class="text-sm font-bold text-gray-800 dark:text-white">Marta Gómez</p><p class="text-[10px] text-gray-400">622 987 654</p></div>
+            </div>
+            <div class="space-y-1.5 mb-4"><p class="text-[10px] text-gray-400 flex items-center gap-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>marta@ejemplo.es</p></div>
+            <div class="grid grid-cols-2 gap-2 pt-3 border-t border-gray-100 dark:border-white/5">
+                <div class="text-center"><p class="text-sm font-extrabold text-gray-800 dark:text-white">1</p><p class="text-[10px] text-gray-400">Vehículos</p></div>
+                <div class="text-center"><p class="text-sm font-extrabold text-gray-800 dark:text-white">2</p><p class="text-[10px] text-gray-400">Reparaciones</p></div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <div class="flex items-center gap-3 mb-4">
+                <img src="https://ui-avatars.com/api/?name=Carlos+Sanchez&background=3b82f6&color=fff&size=48" class="w-10 h-10 rounded-xl">
+                <div><p class="text-sm font-bold text-gray-800 dark:text-white">Carlos Sánchez</p><p class="text-[10px] text-gray-400">609 888 111</p></div>
+            </div>
+            <div class="space-y-1.5 mb-4"><p class="text-[10px] text-gray-400 flex items-center gap-2"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>carlos@ejemplo.es</p></div>
+            <div class="grid grid-cols-2 gap-2 pt-3 border-t border-gray-100 dark:border-white/5">
+                <div class="text-center"><p class="text-sm font-extrabold text-gray-800 dark:text-white">1</p><p class="text-[10px] text-gray-400">Vehículos</p></div>
+                <div class="text-center"><p class="text-sm font-extrabold text-gray-800 dark:text-white">1</p><p class="text-[10px] text-gray-400">Reparaciones</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= TALLERES VIEW ========================= -->
+<div id="view-workshops" class="p-4 sm:p-6 space-y-5 hidden animate-fade-in">
+    <div class="flex items-center justify-between">
+        <div><h2 class="text-sm font-bold text-gray-800 dark:text-white">Talleres</h2><p class="text-[10px] text-gray-400 font-medium mt-0.5">Gestión multisede</p></div>
+        <button class="flex items-center gap-1.5 px-3 py-2 bg-brand-primary hover:bg-brand-secondary text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-brand-primary/20"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>Añadir taller</button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-brand-primary/30 p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-brand-primary/10 rounded-xl flex items-center justify-center"><svg class="w-5 h-5 text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div>
+                    <div><p class="text-sm font-bold text-gray-800 dark:text-white">Taller Central</p><p class="text-[10px] text-gray-400">C/ Gran Vía 45, Madrid</p></div>
+                </div>
+                <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full">Activo</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-sm font-extrabold text-gray-800 dark:text-white">4</p><p class="text-[10px] text-gray-400">Mecánicos</p></div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-sm font-extrabold text-gray-800 dark:text-white">14</p><p class="text-[10px] text-gray-400">Activas</p></div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-sm font-extrabold text-gray-800 dark:text-white">8</p><p class="text-[10px] text-gray-400">Citas hoy</p></div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gray-100 dark:bg-white/5 rounded-xl flex items-center justify-center"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></div>
+                    <div><p class="text-sm font-bold text-gray-800 dark:text-white">Taller Sucursal Norte</p><p class="text-[10px] text-gray-400">C/ Serrano 12, Madrid</p></div>
+                </div>
+                <span class="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-500/10 px-2 py-0.5 rounded-full">Activo</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-sm font-extrabold text-gray-800 dark:text-white">2</p><p class="text-[10px] text-gray-400">Mecánicos</p></div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-sm font-extrabold text-gray-800 dark:text-white">6</p><p class="text-[10px] text-gray-400">Activas</p></div>
+                <div class="text-center p-3 bg-gray-50 dark:bg-white/3 rounded-xl"><p class="text-sm font-extrabold text-gray-800 dark:text-white">3</p><p class="text-[10px] text-gray-400">Citas hoy</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================= CONFIG VIEW ========================= -->
+<div id="view-users" class="p-4 sm:p-6 space-y-5 hidden animate-fade-in">
+    <div><h2 class="text-sm font-bold text-gray-800 dark:text-white">Configuración</h2><p class="text-[10px] text-gray-400 font-medium mt-0.5">Usuarios, roles y preferencias del sistema</p></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <h3 class="text-sm font-bold text-gray-800 dark:text-white mb-4">Usuarios del sistema</h3>
+            <div class="space-y-3">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/3">
+                    <img src="https://ui-avatars.com/api/?name=Admin+Carma&background=A4161A&color=fff&size=32" class="w-8 h-8 rounded-full">
+                    <div class="flex-1"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Admin Carma</p><p class="text-[10px] text-gray-400">admin@carma.es</p></div>
+                    <span class="text-[10px] font-bold bg-brand-primary/10 text-brand-primary px-2 py-0.5 rounded-full">Admin</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/3">
+                    <img src="https://ui-avatars.com/api/?name=Juan+P&background=3b82f6&color=fff&size=32" class="w-8 h-8 rounded-full">
+                    <div class="flex-1"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Juan Pérez</p><p class="text-[10px] text-gray-400">juan@carma.es</p></div>
+                    <span class="text-[10px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-full">Mecánico</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/3">
+                    <img src="https://ui-avatars.com/api/?name=Carlos+T&background=ef4444&color=fff&size=32" class="w-8 h-8 rounded-full">
+                    <div class="flex-1"><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Carlos Torres</p><p class="text-[10px] text-gray-400">carlos@carma.es</p></div>
+                    <span class="text-[10px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-full">Mecánico</span>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border p-5">
+            <h3 class="text-sm font-bold text-gray-800 dark:text-white mb-4">Roles del sistema</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-white/3"><div><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Administrador</p><p class="text-[10px] text-gray-400">Acceso total al sistema</p></div><span class="text-[10px] font-bold bg-brand-primary/10 text-brand-primary px-2 py-0.5 rounded-full">1 usuario</span></div>
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-white/3"><div><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Encargado</p><p class="text-[10px] text-gray-400">Gestión de taller</p></div><span class="text-[10px] font-bold bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">0 usuarios</span></div>
+                <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-white/3"><div><p class="text-xs font-semibold text-gray-700 dark:text-gray-200">Mecánico</p><p class="text-[10px] text-gray-400">Ver y actualizar tareas asignadas</p></div><span class="text-[10px] font-bold bg-blue-50 dark:bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded-full">4 usuarios</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        </div><!-- end #content -->
+    </div><!-- end main panel -->
+</div><!-- end main-dashboard-app -->
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-6 right-6 z-[100] flex items-center gap-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-semibold px-4 py-3 rounded-2xl shadow-2xl translate-y-20 opacity-0 transition-all duration-300">
+    <svg class="w-4 h-4 text-green-400 dark:text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+    <span id="toast-message">Acción completada</span>
+</div>
+
+<!-- Appointment Modal -->
+<div id="appointment-modal" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm hidden opacity-0 transition-all duration-200">
+    <div class="bg-white dark:bg-brand-dark-card rounded-2xl border border-gray-100 dark:border-brand-dark-border shadow-2xl w-full max-w-sm p-6 scale-95 transition-all duration-200">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-sm font-bold text-gray-800 dark:text-white">Nueva Cita</h3>
+            <button id="close-modal" class="p-1.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </div>
+        <form id="appointment-form" class="space-y-4">
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Fecha</label>
+                <input id="modal-date" type="text" readonly class="w-full px-3 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-xs text-gray-600 dark:text-gray-400 outline-none">
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Servicio</label>
+                <select name="servicio" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-xs outline-none focus:border-brand-primary text-gray-700 dark:text-gray-200 cursor-pointer">
+                    <option>Cambio de aceite</option>
+                    <option>Revisión ITV</option>
+                    <option>Frenos</option>
+                    <option>Diagnosis</option>
+                    <option>Otro</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Vehículo</label>
+                <input name="vehiculo" type="text" placeholder="Ej: Seat Ibiza · 1234 ABC" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-xs outline-none focus:border-brand-primary">
+            </div>
+            <button type="submit" class="w-full py-3 bg-brand-primary hover:bg-brand-secondary text-white font-bold rounded-xl text-xs transition-all shadow-sm shadow-brand-primary/20">Agendar cita</button>
+        </form>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
